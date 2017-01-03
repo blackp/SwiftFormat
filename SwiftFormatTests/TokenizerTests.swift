@@ -846,6 +846,34 @@ class TokenizerTests: XCTestCase {
         XCTAssertEqual(tokenize(input), output)
     }
 
+    func testTwoConditionalsThatLookLikeAGeneric() {
+        let input = "if a < b {}\nif c >= b {}"
+        let output: [Token] = [
+            .keyword("if"),
+            .space(" "),
+            .identifier("a"),
+            .space(" "),
+            .symbol("<", .infix),
+            .space(" "),
+            .identifier("b"),
+            .space(" "),
+            .startOfScope("{"),
+            .endOfScope("}"),
+            .linebreak("\n"),
+            .keyword("if"),
+            .space(" "),
+            .identifier("c"),
+            .space(" "),
+            .symbol(">=", .infix),
+            .space(" "),
+            .identifier("b"),
+            .space(" "),
+            .startOfScope("{"),
+            .endOfScope("}"),
+        ]
+        XCTAssertEqual(tokenize(input), output)
+    }
+
     func testBasicGeneric() {
         let input = "Foo<Bar, Baz>"
         let output: [Token] = [
