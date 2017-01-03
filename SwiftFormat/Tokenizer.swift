@@ -1073,7 +1073,7 @@ public func tokenize(_ source: String) -> [Token] {
             let prevToken = tokens[previousIndex]
             if case .endOfScope(">") = prevToken {
                 switch token {
-                case .symbol(let string, _) where ["=", "?", "!", ".", "..."].contains(string):
+                case .symbol(let string, _) where ["?", "!", ".", "..."].contains(string):
                     break
                 case .symbol, .identifier, .number, .startOfScope("\""):
                     convertClosingChevronToSymbol(at: previousIndex, andOpeningChevron: true)
