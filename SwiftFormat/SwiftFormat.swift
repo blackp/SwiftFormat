@@ -39,6 +39,7 @@ public enum FormatError: Error, CustomStringConvertible {
     case reading(String)
     case writing(String)
     case parsing(String)
+    case idempotence(String)
     case options(String)
 
     public var description: String {
@@ -46,6 +47,7 @@ public enum FormatError: Error, CustomStringConvertible {
         case .reading(let string),
              .writing(let string),
              .parsing(let string),
+             .idempotence(let string),
              .options(let string):
             return string
         }
@@ -145,7 +147,17 @@ public func format(_ source: String,
                    rules: [FormatRule] = FormatRules.default,
                    options: FormatOptions = FormatOptions()) throws -> String {
 
-    return sourceCode(for: try format(tokenize(source), rules: rules, options: options))
+    let result = sourceCode(for: try format(tokenize(source), rules: rules, options: options))
+    let secondPass: String // Maybe add an option to skip the idempontence test or vice versa to opt in instead?
+    do {
+        secondPass = sourceCode(for: try format(tokenize(result), rules: rules, options: options))
+    } catch {
+        throw FormatError.idempotence("Failed on second pass: \(error)")
+    }
+    guard result == secondPass else {
+        throw FormatError.idempotence("formatting failed idempotency test: please report a bug with relevant input at: https://github.com/nicklockwood/SwiftFormat/issues")
+    }
+    return result
 }
 
 // MARK: Internal APIs used by CLI - included here for testing purposes
